@@ -1,0 +1,9 @@
+{
+    "filter_mode": "meet_only",
+    "reminder_minutes": 1,
+    "calendar_id": "primary",
+    "poll_interval_seconds": 60,
+    "fetch_interval_seconds": 3600,
+    "credentials_file": "credentials.json",
+    "token_file": "token.json"
+}
