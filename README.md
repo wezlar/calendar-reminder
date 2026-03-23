@@ -28,7 +28,7 @@ chmod +x setup.sh
 
 ### Step 2 — Get the `credentials.json` file
 
-The app uses Google OAuth to read your calendar. `credentials.json` identifies the app to Google — **one person sets this up once and shares the file with everyone else.** If someone in your team has already done this, skip to Step 3.
+The app uses Google OAuth to read your calendar. `credentials.json` identifies the app to Google — **one person sets this up once and shares the file with everyone else.** If someone in your team has already done this (maybe check 1Password?), skip to Step 3.
 
 #### If you are setting this up for the first time (product owner step)
 
@@ -101,6 +101,33 @@ Edit `config.json` to change the behaviour. Changes take effect on the next poll
 The app fetches your full day of events from Google once per hour and stores them locally. The every-60-second check looks at that local cache — it does not call Google each time. This means the app makes around 10–15 API calls per day rather than 1,440.
 
 > **Note:** Because events are cached hourly, a meeting added to your calendar less than an hour before it starts may not trigger an alert. If this is a concern, lower `fetch_interval_seconds` to `900` (every 15 minutes) — still only ~100 API calls per day.
+
+---
+
+## Customising the alert text
+
+All user-facing strings are in a clearly marked block near the top of `calendar_reminder.py`:
+
+```python
+MSG_STARTING_NOW = "is starting now. Stop what you are doing and join the meeting!"
+MSG_ONE_MINUTE   = "starts in 1 minute"
+MSG_MINUTES      = "starts in {n} minutes"
+BTN_JOIN         = "Join now"
+BTN_DISMISS      = "Pfft, how about no"
+```
+
+- `MSG_STARTING_NOW` — shown when the meeting is starting at the moment of the alert
+- `MSG_ONE_MINUTE` — shown when there is exactly 1 minute to go
+- `MSG_MINUTES` — shown for 2+ minutes; `{n}` is replaced with the number of minutes
+- `BTN_JOIN` — label for the button that opens the Google Meet link
+- `BTN_DISMISS` — label for the button that closes the alert
+
+After editing, restart the daemon to apply the changes:
+
+```bash
+launchctl unload ~/Library/LaunchAgents/local.calendar-reminder.plist
+launchctl load ~/Library/LaunchAgents/local.calendar-reminder.plist
+```
 
 ---
 

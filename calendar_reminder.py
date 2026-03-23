@@ -19,6 +19,15 @@ from googleapiclient.errors import HttpError
 SCRIPT_DIR = Path(__file__).parent.resolve()
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
+# ── Customise the alert text here ────────────────────────────────────────────
+# MSG_MINUTES uses {n} as a placeholder for the number of minutes.
+MSG_STARTING_NOW = "is starting now. Stop what you are doing and join the meeting!"
+MSG_ONE_MINUTE   = "starts in 1 minute"
+MSG_MINUTES      = "starts in {n} minutes"
+BTN_JOIN         = "Join now"
+BTN_DISMISS      = "Pfft, how about no"
+# ─────────────────────────────────────────────────────────────────────────────
+
 
 def load_config() -> dict:
     config_file = SCRIPT_DIR / "config.json"
@@ -111,13 +120,12 @@ def show_alert(summary: str, meet_url: str, minutes_away: float) -> None:
     """Show a non-blocking macOS alert dialog."""
     mins_int = max(0, int(minutes_away))
     if mins_int == 0:
-        time_str = "is starting now"
+        time_str = MSG_STARTING_NOW
     elif mins_int == 1:
-        time_str = "starts in 1 minute"
+        time_str = MSG_ONE_MINUTE
     else:
-        time_str = f"starts in {mins_int} minutes"
+        time_str = MSG_MINUTES.format(n=mins_int)
 
-    # Escape single quotes for AppleScript
     safe_summary = summary.replace('"', '\\"')
     message = f"{safe_summary} {time_str}"
 
@@ -126,10 +134,11 @@ def show_alert(summary: str, meet_url: str, minutes_away: float) -> None:
         script = f"""
 set r to display alert "{safe_summary}" ¬
     message "{time_str}" ¬
-    buttons {{"Dismiss", "Join"}} ¬
-    default button "Join" ¬
-    giving up after 300
-if button returned of r is "Join" then
+    buttons {{"{BTN_DISMISS}", "{BTN_JOIN}"}} ¬
+    default button "{BTN_JOIN}" ¬
+    giving up after 300 ¬
+    with icon (path to application "Calendar")
+if button returned of r is "{BTN_JOIN}" then
     open location "{safe_url}"
 end if
 """
@@ -137,9 +146,10 @@ end if
         script = f"""
 display alert "{safe_summary}" ¬
     message "{time_str}" ¬
-    buttons {{"Dismiss"}} ¬
-    default button "Dismiss" ¬
-    giving up after 300
+    buttons {{"{BTN_DISMISS}"}} ¬
+    default button "{BTN_DISMISS}" ¬
+    giving up after 300 ¬
+    with icon (path to application "Calendar")
 """
 
     subprocess.Popen(["osascript", "-e", script])
