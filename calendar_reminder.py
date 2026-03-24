@@ -21,7 +21,7 @@ SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
 # ── Customise the alert text here ────────────────────────────────────────────
 # MSG_MINUTES uses {n} as a placeholder for the number of minutes.
-MSG_STARTING_NOW = "is starting now. Stop what you are doing and join the meeting!"
+MSG_STARTING_NOW = "...is starting now. Stop what you are doing and join the meeting!"
 MSG_ONE_MINUTE   = "starts in 1 minute"
 MSG_MINUTES      = "starts in {n} minutes"
 BTN_JOIN         = "Join now"
@@ -54,7 +54,6 @@ def setup_logging() -> None:
         format="%(asctime)s %(levelname)s %(message)s",
         handlers=[
             logging.FileHandler(log_dir / "calendar-reminder.log"),
-            logging.StreamHandler(sys.stdout),
         ],
     )
 
@@ -129,28 +128,27 @@ def show_alert(summary: str, meet_url: str, minutes_away: float) -> None:
     safe_summary = summary.replace('"', '\\"')
     message = f"{safe_summary} {time_str}"
 
+    icon_path = str(SCRIPT_DIR / "icon.icns")
+    icon_clause = f' with icon file (POSIX file "{icon_path}")' if (SCRIPT_DIR / "icon.icns").exists() else ""
+
     if meet_url:
         safe_url = meet_url.replace('"', '\\"')
-        script = f"""
-set r to display alert "{safe_summary}" ¬
-    message "{time_str}" ¬
-    buttons {{"{BTN_DISMISS}", "{BTN_JOIN}"}} ¬
-    default button "{BTN_JOIN}" ¬
-    giving up after 300 ¬
-    with icon (path to application "Calendar")
-if button returned of r is "{BTN_JOIN}" then
-    open location "{safe_url}"
-end if
-"""
+        script = (
+            f'set r to display dialog "{time_str}"'
+            f' with title "{safe_summary}"'
+            f' buttons {{"{BTN_DISMISS}", "{BTN_JOIN}"}}'
+            f' default button "{BTN_JOIN}" giving up after 300{icon_clause}\n'
+            f'if button returned of r is "{BTN_JOIN}" then\n'
+            f'open location "{safe_url}"\n'
+            f'end if\n'
+        )
     else:
-        script = f"""
-display alert "{safe_summary}" ¬
-    message "{time_str}" ¬
-    buttons {{"{BTN_DISMISS}"}} ¬
-    default button "{BTN_DISMISS}" ¬
-    giving up after 300 ¬
-    with icon (path to application "Calendar")
-"""
+        script = (
+            f'display dialog "{time_str}"'
+            f' with title "{safe_summary}"'
+            f' buttons {{"{BTN_DISMISS}"}}'
+            f' default button "{BTN_DISMISS}" giving up after 300{icon_clause}\n'
+        )
 
     subprocess.Popen(["osascript", "-e", script])
     logging.info("Alert shown: %s", message)
