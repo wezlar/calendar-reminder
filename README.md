@@ -1,5 +1,7 @@
 # Calendar Reminder
 
+![Calendar Reminder alert dialog](image.png)
+
 A macOS background app that watches your Google Calendar and pops up an alert before your meetings start. It runs silently in the background and restarts automatically when you log in.
 
 ## Features
