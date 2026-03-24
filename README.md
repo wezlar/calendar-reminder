@@ -114,6 +114,7 @@ MSG_ONE_MINUTE   = "starts in 1 minute"
 MSG_MINUTES      = "starts in {n} minutes"
 BTN_JOIN         = "Join now"
 BTN_DISMISS      = "Pfft, how about no"
+ALERT_SOUND      = "Glass"
 ```
 
 - `MSG_STARTING_NOW` — shown when the meeting is starting at the moment of the alert
@@ -121,6 +122,7 @@ BTN_DISMISS      = "Pfft, how about no"
 - `MSG_MINUTES` — shown for 2+ minutes; `{n}` is replaced with the number of minutes
 - `BTN_JOIN` — label for the button that opens the Google Meet link
 - `BTN_DISMISS` — label for the button that closes the alert
+- `ALERT_SOUND` — sound played when the alert appears. Set to `""` to disable. Available options: `Basso`, `Blow`, `Bottle`, `Frog`, `Funk`, `Glass`, `Hero`, `Morse`, `Ping`, `Pop`, `Purr`, `Sosumi`, `Submarine`, `Tink`
 
 After editing, restart the daemon to apply the changes:
 

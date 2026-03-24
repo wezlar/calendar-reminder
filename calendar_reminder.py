@@ -26,6 +26,9 @@ MSG_ONE_MINUTE   = "starts in 1 minute"
 MSG_MINUTES      = "starts in {n} minutes"
 BTN_JOIN         = "Join now"
 BTN_DISMISS      = "Pfft, how about no"
+# Sound played when the alert appears. Set to "" to disable.
+# Options: Basso, Blow, Bottle, Frog, Funk, Glass, Hero, Morse, Ping, Pop, Purr, Sosumi, Submarine, Tink
+ALERT_SOUND      = "Glass"
 # ─────────────────────────────────────────────────────────────────────────────
 
 
@@ -150,6 +153,8 @@ def show_alert(summary: str, meet_url: str, minutes_away: float) -> None:
             f' default button "{BTN_DISMISS}" giving up after 300{icon_clause}\n'
         )
 
+    if ALERT_SOUND:
+        subprocess.Popen(["afplay", f"/System/Library/Sounds/{ALERT_SOUND}.aiff"])
     subprocess.Popen(["osascript", "-e", script])
     logging.info("Alert shown: %s", message)
 
